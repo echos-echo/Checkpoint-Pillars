@@ -1,0 +1,45 @@
+{
+  "name": "pillars",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --recursive --exit",
+    "test-dev": "NODE_ENV='testing' DATABASE_URL='postgres://localhost/pillars_test' npm run test -- --watch",
+    "start-dev-seed": "SEED=true npm run start-dev",
+    "start-dev": "NODE_ENV='development' nodemon server --ignore client/ --ignore dist/ & npm run webpack -- --watch --mode=development",
+    "lint": "eslint .",
+    "lint-fix": "eslint --fix .",
+    "format": "prettier --write .",
+    "webpack": "webpack"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "chalk": "^4.1.0",
+    "express": "^4.17.1",
+    "morgan": "^1.10.0",
+    "pg": "^8.3.0",
+    "sequelize": "^6.3.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.10.4",
+    "axios": "^0.19.2",
+    "babel-loader": "^8.1.0",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "eslint": "^7.4.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react": "^7.20.3",
+    "mocha": "^8.1.1",
+    "nodemon": "^2.0.4",
+    "prettier": "^2.0.5",
+    "sinon": "^9.0.2",
+    "supertest": "^4.0.2",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12"
+  }
+}
