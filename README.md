@@ -10,7 +10,7 @@ To this end — and perhaps it goes without saying — we ask that you don't hel
 
 ## Resources
 
-[FSA Checkpoint Academic Integrity Policy](https://gist.github.com/short-matthew-f/2ef877e84d6624626ec4fcc5d899936b)
+[FSA Checkpoint Academic Integrity Policy](https://gist.github.com/danceoval/e6a718388cb7325098d85704d81bc8a7)
 
 ## Things we're checking
 
