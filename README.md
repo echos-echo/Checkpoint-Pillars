@@ -24,7 +24,7 @@ To this end — and perhaps it goes without saying — we ask that you don't hel
 ## Starting
 
 - **Fork** this repo to your own GitHub
-- Read the [REQUIREMENTS](./REQUIREMENTS.md)
+- Read the REQUIREMENTS.md
 - Clone your fork to your local machine.
 - Make sure your Postgres database is running!
 - Create two databases:
