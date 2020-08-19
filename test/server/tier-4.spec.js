@@ -33,9 +33,14 @@ describe('Tier 4: Sequelize Updating, PUT (update) an Existing User, Express Err
       });
 
       xit('can update a user with a mentor who is a TEACHER', async () => {
-        const freddy = await User.create({ name: 'FREDDY' });
+        const freddy = await User.create({
+          name: 'FREDDY',
+          userType: 'TEACHER',
+        });
         const jerry = await User.create({ name: 'JERRY' });
-        await expect(jerry.update({ mentorId: freddy.id })).to.be.rejected;
+        await jerry.update({ mentorId: freddy.id });
+        const jerrysMentor = await jerry.getMentor();
+        expect(jerrysMentor.name).to.equal(freddy.name);
       });
     });
 
