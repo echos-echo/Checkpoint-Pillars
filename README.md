@@ -4,10 +4,6 @@ This checkpoint is primarily to help us understand how well you've absorbed the 
 
 To this end — and perhaps it goes without saying — we ask that you don't help each other or cheat.
 
-## Introduction Video (Watch This First)
-
-[![Pillars: Getting Started](https://img.youtube.com/vi/C5tOaT0xjOg/0.jpg)](https://youtu.be/C5tOaT0xjOg)
-
 ## Resources
 
 [FSA Checkpoint Academic Integrity Policy](https://gist.github.com/danceoval/e6a718388cb7325098d85704d81bc8a7)
