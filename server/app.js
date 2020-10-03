@@ -8,6 +8,9 @@ if (process.env.NODE_ENV !== 'testing') app.use(morgan('dev'));
 app.use(express.json());
 
 app.use('/api/users', require('./routes/users'));
+app.use('/api/*', (req, res) => {
+  res.status(404).send({ message: 'Not Found' });
+});
 
 app.use(express.static(path.join(__dirname, '..', 'public')));
 

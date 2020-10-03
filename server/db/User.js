@@ -3,7 +3,9 @@ const db = require('./db');
 
 const User = db.define('user', {
   // Add your Sequelize fields here
+
 });
+
 
 /**
  * We've created the association for you!

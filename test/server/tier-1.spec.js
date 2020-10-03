@@ -4,11 +4,12 @@ const {
   db,
   models: { User },
 } = require('../../server/db');
+const { logTable } = require('./utils');
 
 const _app = require('../../server/app');
 const app = require('supertest')(_app);
 
-describe('Tier 1: Basic Fields, Class Methods, GET Users', () => {
+describe('Tier 1: Basic Fields, Class Methods, GET Routes', () => {
   describe('Sequelize', () => {
     before(() => {
       console.log(cyan(`      Take a look at server/db/User.js\n`));
@@ -22,23 +23,35 @@ describe('Tier 1: Basic Fields, Class Methods, GET Users', () => {
       describe('name', () => {
         xit('name is a string', async () => {
           const hannah = await User.create({ name: 'HANNAH' });
-          expect(hannah.name).to.equal('HANNAH');
+          expect(hannah.name).to.equal(
+            'HANNAH',
+            'Was not able to create a user with name HANNAH'
+          );
         });
 
         xit('name must be unique', async () => {
           // We shouldn't be able to create two users with the same name.
           await User.create({ name: 'HANNAH' });
-          await expect(User.create({ name: 'HANNAH' })).to.be.rejected;
+          await expect(
+            User.create({ name: 'HANNAH' }),
+            "Shouldn't be able to create two users with the same name (HANNAH)"
+          ).to.be.rejected;
         });
 
         xit('name cannot be null', async () => {
           // We shouldn't be able to create a user without a name.
-          await expect(User.create({})).to.be.rejected;
+          await expect(
+            User.create({}),
+            "We shouldn't be able to create a user with no name"
+          ).to.be.rejected;
         });
 
         xit('name cannot be an empty string', async () => {
           // We also shouldn't be able to create a user with an empty name.
-          await expect(User.create({ name: '' })).to.be.rejected;
+          await expect(
+            User.create({ name: '' }),
+            "We shouldn't be able to create a user with an empty name"
+          ).to.be.rejected;
         });
       });
 
@@ -53,24 +66,41 @@ describe('Tier 1: Basic Fields, Class Methods, GET Users', () => {
           expect(ali.userType).to.equal('STUDENT');
         });
 
+        xit('userType defaults to "STUDENT" if not provided', async () => {
+          const ali = await User.create({ name: 'ALI' });
+          expect(ali.userType).to.equal('STUDENT');
+        });
+
+        xit('userType cannot be null', async () => {
+          const aliPromise = User.create({
+            name: 'ALI',
+            userType: null,
+          });
+          await expect(
+            aliPromise,
+            "We shouldn't be able to create a user with a null userType"
+          ).to.be.rejected;
+        });
+
         xit('userType can ONLY be either "STUDENT" or "TEACHER"', async () => {
           const aliPromise = User.create({
             name: 'ALI',
             userType: 'EAGER_TO_LEARN', // Invalid userType! This promise should reject.
           });
-          await expect(aliPromise).to.be.rejected;
-        });
-
-        xit('userType defaults to "STUDENT" if not provided', async () => {
-          const ali = await User.create({ name: 'ALI' });
-          expect(ali.userType).to.equal('STUDENT');
+          await expect(
+            aliPromise,
+            "We shouldn't be able to create a user with invalid userType (EAGER_TO_LEARN)"
+          ).to.be.rejected;
         });
       });
     });
 
     describe('Class Method: findUnassignedStudents', () => {
       xit('User.findUnassignedStudents is a class method', () => {
-        expect(User.findUnassignedStudents).to.be.a('function');
+        expect(User.findUnassignedStudents).to.be.a(
+          'function',
+          "findTeachersAndMentees isn't a class method"
+        );
       });
 
       xit('User.findUnassignedStudents returns all students who do not have a mentor', async () => {
@@ -84,8 +114,14 @@ describe('Tier 1: Basic Fields, Class Methods, GET Users', () => {
           User.create({ name: 'SARAH' }),
         ]);
         const unassignedStudents = await User.findUnassignedStudents();
-        expect(unassignedStudents).to.be.a('array');
-        expect(unassignedStudents).to.have.lengthOf(2);
+        expect(unassignedStudents).to.be.a(
+          'array',
+          'User.findUnassignedStudents should return (a Promise that resolves to) an array'
+        );
+        expect(unassignedStudents).to.have.lengthOf(
+          2,
+          'There should be only two unassigned students'
+        );
         const studentNames = unassignedStudents.map((student) => student.name);
         expect(studentNames).to.have.members(['ALI', 'SARAH']);
       });
@@ -94,7 +130,27 @@ describe('Tier 1: Basic Fields, Class Methods, GET Users', () => {
 
   describe('Express', () => {
     before(() => {
-      console.log(cyan(`      Take a look at server/routes/users.js\n`));
+      console.log(cyan(`      Take a look at server/routes/users.js`));
+    });
+
+    before(() => {
+      logTable();
+      /*
+        We're seeding the database with five sample users so that our
+        Express routes have some data to retrieve. The ids may be different,
+        but the table would look something like this:
+        .-----------------------------------.
+        |               users               |
+        |-----------------------------------|
+        | id |  name  | userType | mentorId |
+        |----|--------|----------|----------|
+        |  1 | MOE    | STUDENT  |        2 |
+        |  2 | LUCY   | TEACHER  | null     |
+        |  3 | HANNAH | TEACHER  | null     |
+        |  4 | WANDA  | STUDENT  | null     |
+        |  5 | EDDY   | STUDENT  | null     |
+        '-----------------------------------'
+      */
     });
 
     beforeEach(async () => {
@@ -107,7 +163,7 @@ describe('Tier 1: Basic Fields, Class Methods, GET Users', () => {
         User.create({ name: 'EDDY' }),
       ]);
       const [moe, lucy] = _users;
-      await moe.setMentor(lucy);
+      await moe.setMentor(lucy, { hooks: false });
     });
 
     describe('GET /api/users/unassigned', () => {
@@ -115,34 +171,32 @@ describe('Tier 1: Basic Fields, Class Methods, GET Users', () => {
         const response = await app.get('/api/users/unassigned');
         expect(response.status).to.equal(200);
         expect(response.body).to.be.an('array');
-        expect(response.body.length).to.equal(2);
         const names = response.body.map((user) => user.name);
         expect(names).to.include('WANDA');
         expect(names).to.include('EDDY');
       });
-    });
 
-    describe('GET /api/users/teachers', () => {
-      xit('responds with all teachers', async () => {
-        const response = await app.get('/api/users/teachers');
-        expect(response.status).to.equal(200);
-        expect(response.body).to.be.an('array');
-        expect(response.body.length).to.equal(2);
+      xit('does not include any teachers in the response', async () => {
+        const response = await app.get('/api/users/unassigned');
         const names = response.body.map((user) => user.name);
-        expect(names).to.include('LUCY');
-        expect(names).to.include('HANNAH');
+        expect(names).to.not.include(
+          'LUCY',
+          'LUCY is a teacher, but was included in the response'
+        );
+        expect(names).to.not.include(
+          'HANNAH',
+          'HANNAH is a teacher, but was included in the response'
+        );
       });
 
-      xit('responds with all teachers and their mentees', async () => {
-        const response = await app.get('/api/users/teachers');
-        expect(response.status).to.equal(200);
-        expect(response.body).to.be.an('array');
-
-        const lucy = response.body.find((user) => user.name === 'LUCY');
-        expect(lucy).to.have.property('mentees');
-        expect(lucy.mentees).to.be.an('array');
-        const [moe] = lucy.mentees;
-        expect(moe.name).to.equal('MOE');
+      xit('does not include any students who have a mentor', async () => {
+        const response = await app.get('/api/users/unassigned');
+        const names = response.body.map((user) => user.name);
+        expect(names).to.not.include(
+          'MOE',
+          'Students with a mentor should not be included'
+        );
+        expect(response.body.length).to.equal(2);
       });
     });
   });
