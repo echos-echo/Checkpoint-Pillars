@@ -8,176 +8,99 @@ const {
 const _app = require('../../server/app');
 const app = require('supertest')(_app);
 
-describe('Tier 2: Virtual Fields, Sequelize Destroying, DELETE (destroy) a User', () => {
+describe('Tier 2: Eager Loading, One-To-Many Associations', () => {
+  beforeEach(async () => {
+    await db.sync({ force: true });
+    const _users = await User.bulkCreate(
+      [
+        { name: 'MOE' },
+        { name: 'LUCY', userType: 'TEACHER' },
+        { name: 'WANDA' },
+        { name: 'HANNAH', userType: 'TEACHER' },
+        { name: 'EDDY' },
+      ],
+      { hooks: false }
+    );
+    const [moe, lucy, wanda] = _users;
+    await moe.setMentor(lucy, { hooks: false });
+    await lucy.addMentee(wanda, { hooks: false });
+  });
+
   describe('Sequelize', () => {
-    beforeEach(async () => {
-      await db.sync({ force: true });
+    before(() => {
+      console.log(
+        cyan(
+          `
+      HINT: Sequelize documentation on Eager Loading:
+      https://sequelize.org/master/manual/eager-loading.html#fetching-an-aliased-association \n`
+        )
+      );
     });
 
-    describe('Virtual Fields: isStudent and isTeacher', () => {
-      before(() => {
-        console.log(
-          cyan(`
-        HINT: Go see what the Sequelize documentation has to say
-        about virtual fields:
-        https://sequelize.org/master/manual/getters-setters-virtuals.html\n`)
+    describe('Class Method: findTeachersAndMentees', () => {
+      xit('User.findTeachersAndMentees is a class method', () => {
+        expect(User.findTeachersAndMentees).to.be.a(
+          'function',
+          "findTeachersAndMentees isn't a class method!"
         );
       });
 
-      describe('isStudent', () => {
-        xit('isStudent is true if the user is a student', async () => {
-          const ali = await User.create({
-            name: 'ALI',
-            userType: 'STUDENT',
-          });
-          expect(ali.isStudent).to.equal(true);
-        });
-
-        xit('isStudent is false if the user is NOT a student', async () => {
-          const hannah = await User.create({
-            name: 'HANNAH',
-            userType: 'TEACHER',
-          });
-          expect(hannah.isStudent).to.equal(false);
-        });
-
-        xit("isStudent is virtual (it doesn't appear as a column in the database)", async () => {
-          const ali = await User.create({
-            name: 'ALI',
-            userType: 'STUDENT',
-          });
-          // The dataValues of a Sequelize instance reflect the columns in that database table.
-          // We want isStudent to be _derived_ from the userType property.
-          expect(ali.dataValues.isStudent).to.equal(undefined);
-        });
+      xit('User.findTeachersAndMentees returns all teachers', async () => {
+        const teachers = await User.findTeachersAndMentees();
+        expect(teachers).to.be.a('array', "Didn't return an array!");
+        expect(teachers).to.have.lengthOf(2, 'Wrong number of teachers!');
+        const teachersNames = teachers.map((teacher) => teacher.name);
+        expect(teachersNames).to.have.members(
+          ['LUCY', 'HANNAH'],
+          "Didn't return the correct teachers!"
+        );
       });
 
-      describe('isTeacher', () => {
-        xit('isTeacher is true if the user is a teacher', async () => {
-          const hannah = await User.create({
-            name: 'HANNAH',
-            userType: 'TEACHER',
-          });
-          expect(hannah.isTeacher).to.equal(true);
-        });
-
-        xit('isTeacher is false if the user is NOT a teacher', async () => {
-          const ali = await User.create({
-            name: 'ALI',
-            userType: 'STUDENT',
-          });
-          expect(ali.isTeacher).to.equal(false);
-        });
-
-        xit("isTeacher is virtual (it doesn't appear as a column in the database)", async () => {
-          const hannah = await User.create({
-            name: 'HANNAH',
-            userType: 'TEACHER',
-          });
-          // The dataValues of a Sequelize instance reflect the columns in that database table.
-          // We want isTeacher to be _derived_ from the userType property.
-          expect(hannah.dataValues.isTeacher).to.equal(undefined);
-        });
-      });
-    });
-    describe('Deleting', () => {
-      xit('cannot delete a teacher who has mentees', async () => {
-        const freddy = await User.create({
-          name: 'FREDDY',
-          userType: 'TEACHER',
-        });
-        const jerry = await User.create({
-          name: 'JERRY',
-          mentorId: freddy.id,
-        });
-        await expect(freddy.destroy()).to.be.rejected;
-        expect(await jerry.getMentor()).to.deep.include({ name: 'FREDDY' });
-      });
-
-      xit('can delete a teacher who does not have mentees', async () => {
-        const freddy = await User.create({
-          name: 'FREDDY',
-          userType: 'TEACHER',
-        });
-        await freddy.destroy();
-        const userNamedFreddy = await User.findOne({
-          where: { name: 'FREDDY' },
-        });
-        expect(userNamedFreddy).to.equal(null);
-      });
-
-      xit('can delete a student (always)', async () => {
-        const freddy = await User.create({
-          name: 'FREDDY',
-          userType: 'TEACHER',
-        });
-        const jerry = await User.create({
-          name: 'JERRY',
-          mentorId: freddy.id,
-        });
-        const ali = await User.create({ name: 'ALI' });
-        await jerry.destroy(); // jerry has a mentor
-        await ali.destroy(); // ali doe snot have a mentor
-        // Both students should be deleted
-        const userNamedJerry = await User.findOne({ where: { name: 'JERRY' } });
-        const userNamedAli = await User.findOne({ where: { name: 'ALI' } });
-        expect(userNamedJerry).to.equal(null);
-        expect(userNamedAli).to.equal(null);
+      xit("User.findTeachersAndMentees returns all teachers's assigned mentees", async () => {
+        const teachers = await User.findTeachersAndMentees();
+        const lucy = teachers.find((teacher) => teacher.name === 'LUCY');
+        const hannah = teachers.find((teacher) => teacher.name === 'HANNAH');
+        expect(lucy).to.be.an('object', 'Could not find LUCY!');
+        expect(hannah).to.be.an('object', 'Could not find HANNAH!');
+        expect(lucy.mentees).to.be.an(
+          'array',
+          "Couldn't find mentees on the teachers!"
+        );
+        expect(hannah.mentees).to.deep.equal(
+          [],
+          "HANNAH shouldn't have any mentees!"
+        );
+        const lucysMenteesNames = lucy.mentees.map((student) => student.name);
+        expect(lucysMenteesNames).to.include.members(
+          ['WANDA', 'MOE'],
+          "LUCY's mentees should include WANDA and MOE"
+        );
       });
     });
   });
 
   describe('Express', () => {
-    let users;
-    beforeEach(async () => {
-      await db.sync({ force: true });
-      const _users = await Promise.all([
-        User.create({ name: 'MOE' }),
-        User.create({ name: 'LUCY', userType: 'TEACHER' }),
-        User.create({ name: 'HANNAH', userType: 'TEACHER' }),
-        User.create({ name: 'WANDA' }),
-        User.create({ name: 'EDDY' }),
-      ]);
-      const [moe, lucy] = _users;
-      await moe.setMentor(lucy);
-      users = _users.reduce((acc, user) => {
-        acc[user.name] = user;
-        return acc;
-      }, {});
-    });
-
-    describe('DELETE /api/users/:id', () => {
-      xit('deletes an existing user by their id and responds with 204', async () => {
-        let moe = users.MOE;
-        const response = await app.delete(`/api/users/${moe.id}`);
-        expect(response.status).to.equal(204);
-        moe = await User.findByPk(users.MOE.id);
-        expect(moe).to.equal(null);
-        // Only one user should have been deleted
-        expect(await User.findAll()).to.have.lengthOf(4);
+    describe('GET /api/users/teachers', () => {
+      xit('responds with all teachers', async () => {
+        const response = await app.get('/api/users/teachers');
+        expect(response.status).to.equal(200);
+        expect(response.body).to.be.an('array');
+        expect(response.body.length).to.equal(2);
+        const names = response.body.map((user) => user.name);
+        expect(names).to.include('LUCY');
+        expect(names).to.include('HANNAH');
       });
 
-      xit('responds with 404 if the user does not exist', async () => {
-        const response = await app.delete('/api/users/10000');
-        expect(response.status).to.equal(404);
-        // No users should have been deleted
-        expect(await User.findAll()).to.have.lengthOf(5);
-      });
+      xit('responds with all teachers and their mentees', async () => {
+        const response = await app.get('/api/users/teachers');
+        expect(response.status).to.equal(200);
+        expect(response.body).to.be.an('array');
 
-      xit('responds with 400 if the id is not a number', async () => {
-        const response = await app.delete('/api/users/not_a_valid_id');
-        expect(response.status).to.equal(400);
-        // No users should have been deleted
-        expect(await User.findAll()).to.have.lengthOf(5);
-      });
-
-      xit('responds with 403 if the user is a teacher with mentees', async () => {
-        // Lucy is a teacher who has one mentee. We shouldn't be able to delete Lucy.
-        let lucy = users.LUCY;
-        const response = await app.delete(`/api/users/${lucy.id}`);
-        expect(response.status).to.equal(403);
-        // No users should have been deleted
-        expect(await User.findAll()).to.have.lengthOf(5);
+        const lucy = response.body.find((user) => user.name === 'LUCY');
+        expect(lucy).to.have.property('mentees');
+        expect(lucy.mentees).to.be.an('array');
+        const [moe] = lucy.mentees;
+        expect(moe.name).to.equal('MOE');
       });
     });
   });

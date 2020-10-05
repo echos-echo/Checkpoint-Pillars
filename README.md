@@ -1,12 +1,8 @@
 # Checkpoint - Pillars (Express/Sequelize)
 
-This checkpoint is primarily to help us understand how well you've absorbed the material covered so far. It covers the main backend libraries you've leaned in the curriculum so far: Express and Sequelize.
+This checkpoint is primarily to help us understand how well you've absorbed the material covered so far. It covers the main backend libraries you've learned in the curriculum so far: Express and Sequelize.
 
 To this end — and perhaps it goes without saying — we ask that you don't help each other or cheat.
-
-## Introduction Video (Watch This First)
-
-[![Pillars: Getting Started](https://img.youtube.com/vi/C5tOaT0xjOg/0.jpg)](https://youtu.be/C5tOaT0xjOg)
 
 ## Resources
 
@@ -42,7 +38,7 @@ To this end — and perhaps it goes without saying — we ask that you don't hel
 - **READ ALL COMMENTS CAREFULLY.** Specs often assume you have read the comments.
 - After you have correctly defined the User model's `name` and `userType` fields, you can probably run all the remaining model and route specs in _any order_ (note, not 100% guaranteed). So if you get stuck, **move on and try some other specs**.
 - You should `git commit` and `git push` very frequently — even for each passing spec if you like! This will prevent you from losing work.
-- That this project includes some working front-end code in `client/index.js`, bundled with Webpack into `public/bundle.js`. You won't need to write any front-end code to pass the provided tests, but you are encouraged to read through that front-end code to understand how it uses axios to make requests of the back-end.
+- That this project includes some working front-end code in `client/index.js`, bundled with Webpack into `public/bundle.js`. You won't need to write any front-end code to fulfill the requirements, but you are welcome to read through that front-end code to understand how it uses axios to make requests of the back-end.
 - If you are uncertain what a spec is doing or asking of you, or you've gotten stuck, _ask for help_. We may not be able to give you any hints, but you won't know if you don't ask, and sometimes the problem is technical rather than related to the checkpoint itself.
 - Please don't submit `console.log`s and other debug code.
 

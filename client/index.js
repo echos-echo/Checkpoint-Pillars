@@ -1,4 +1,5 @@
 import axios from 'axios';
+axios.defaults.timeout = 2000;
 
 const teacherList = document.querySelector('#teachers');
 const unassignedList = document.querySelector('#unassigned');
@@ -12,11 +13,24 @@ const data = {
 };
 
 const fetchTeachers = async () => {
-  data.teachers = (await axios.get('/api/users/teachers')).data;
+  try {
+    const response = await axios.get('/api/users/teachers');
+    data.teachers = response.data;
+  } catch (err) {
+    console.error('Failed to fetch teachers (GET /api/users/teachers)', err);
+  }
 };
 
 const fetchUnassigned = async () => {
-  data.unassigned = (await axios.get('/api/users/unassigned')).data;
+  try {
+    const response = await axios.get('/api/users/unassigned');
+    data.unassigned = response.data;
+  } catch (err) {
+    console.error(
+      'Failed to fetch unassigned students (GET /api/users/unassigned)',
+      err
+    );
+  }
 };
 
 const renderTeachers = () => {
@@ -24,7 +38,7 @@ const renderTeachers = () => {
     .map((teacher) => {
       return `
       <li>
-        ${teacher.name} (${teacher.mentees.length} mentees)
+        ${teacher.name} (${teacher.mentees && teacher.mentees.length} mentees)
         <button data-action='delete-teacher' data-id='${teacher.id}'>x</button>
         <button data-action='make-teacher-a-student' data-id='${
           teacher.id
@@ -40,14 +54,15 @@ const renderTeachers = () => {
 };
 
 const renderMentees = (mentees) => {
+  if (!mentees) return;
   const html = mentees
     .map((mentee) => {
       return `
       <li>
         ${mentee.name}
-        <button data-teacher-id='${mentee.mentorId}' data-action='delete-mentee' data-id='${mentee.id}'>x</button>
-        <button data-teacher-id='${mentee.mentorId}' data-action='unassign-mentee' data-id='${mentee.id}'>Unassigne Mentee</button>
-        <button data-teacher-id='${mentee.mentorId}' data-action='make-mentee-a-teacher' data-id='${mentee.id}'>Make Teacher</button>
+        <button data-mentor-id='${mentee.mentorId}' data-action='delete-mentee' data-id='${mentee.id}'>x</button>
+        <button data-mentor-id='${mentee.mentorId}' data-action='unassign-mentee' data-id='${mentee.id}'>Unassigne Mentee</button>
+        <button data-mentor-id='${mentee.mentorId}' data-action='make-mentee-a-teacher' data-id='${mentee.id}'>Make Teacher</button>
       </li>
     `;
     })
@@ -93,90 +108,183 @@ const getTeacherById = (id) => {
   return data.teachers.find((teacher) => teacher.id === id);
 };
 
-const getMenteeById = (teacherId, id) => {
-  return getTeacherById(teacherId).mentees.find((mentee) => mentee.id === id);
+const createStudent = async (studentName) => {
+  try {
+    const response = await axios.post('/api/users', { name: studentName });
+    const student = response.data;
+    data.unassigned = [student, ...data.unassigned];
+    render();
+  } catch (err) {
+    console.error('Failed to create new student (POST /api/users)', err);
+    error.innerText = err.response
+      ? err.response.data.message
+      : 'Request Timed Out';
+  }
 };
 
-const getUnassignedById = (id) => {
-  return data.unassigned.find((student) => student.id === id);
+const deleteTeacher = async (teacherId) => {
+  try {
+    await axios.delete(`/api/users/${teacherId}`);
+    const { mentees } = getTeacherById(teacherId);
+    data.teachers = data.teachers.filter((teacher) => teacher.id !== teacherId);
+    data.unassigned = [...data.unassigned, ...mentees];
+    render();
+  } catch (err) {
+    console.error(
+      `Failed to delete user (DELETE /api/users/${teacherId})`,
+      err
+    );
+    error.innerText = err.response
+      ? err.response.data.message
+      : 'Request Timed Out';
+  }
+};
+
+const deleteMentee = async (menteeId, teacherId) => {
+  try {
+    const teacher = getTeacherById(teacherId);
+    await axios.delete(`/api/users/${menteeId}`);
+    teacher.mentees = teacher.mentees.filter(
+      (mentee) => mentee.id !== menteeId
+    );
+    render();
+  } catch (err) {
+    console.error(`Failed to delete user (DELETE /api/users/${menteeId})`, err);
+    error.innerText = err.response
+      ? err.response.data.message
+      : 'Request Timed Out';
+  }
+};
+
+const deleteUnassignedStudent = async (studentId) => {
+  try {
+    await axios.delete(`/api/users/${studentId}`);
+    data.unassigned = data.unassigned.filter(
+      (student) => student.id !== studentId
+    );
+    render();
+  } catch (err) {
+    console.error(
+      `Failed to delete user (DELETE /api/users/${studentId})`,
+      err
+    );
+    error.innerText = err.response
+      ? err.response.data.message
+      : 'Request Timed Out';
+  }
+};
+
+const makeTeacherAStudent = async (id) => {
+  try {
+    const response = await axios.put(`/api/users/${id}`, {
+      userType: 'STUDENT',
+    });
+    const student = response.data;
+    data.unassigned.push(student);
+    data.teachers = data.teachers.filter((teacher) => teacher.id !== id);
+    render();
+  } catch (err) {
+    console.error(`Failed to update user (PUT /api/users/${id})`, err);
+    error.innerText = err.response
+      ? err.response.data.message
+      : 'Request Timed Out';
+  }
+};
+
+const makeMenteeATeacher = async (menteeId, teacherId) => {
+  const mentor = getTeacherById(teacherId);
+  try {
+    const response = await axios.put(`/api/users/${menteeId}`, {
+      userType: 'TEACHER',
+    });
+    const teacher = response.data;
+    mentor.mentees = mentor.mentees.filter((mentee) => mentee.id === menteeId);
+    data.teachers = [teacher, ...data.teachers];
+    render();
+  } catch (err) {
+    console.error(`Failed to update user (PUT /api/users/${menteeId})`, err);
+    error.innerText = err.response
+      ? err.response.data.message
+      : 'Request Timed Out';
+  }
+};
+
+const makeUnassignedATeacher = async (id) => {
+  try {
+    const response = await axios.put(`/api/users/${id}`, {
+      userType: 'TEACHER',
+    });
+    const teacher = response.data;
+    teacher.mentees = [];
+    data.unassigned = data.unassigned.filter((student) => student.id !== id);
+    data.teachers = [teacher, ...data.teachers];
+    render();
+  } catch (err) {
+    console.error(`Failed to update user (PUT /api/users/${id})`, err);
+    error.innerText = err.response
+      ? err.response.data.message
+      : 'Request Timed Out';
+  }
+};
+
+const unassignMentee = async (menteeId, teacherId) => {
+  const mentor = getTeacherById(teacherId);
+  try {
+    const response = await axios.put(`/api/users/${menteeId}`, {
+      mentorId: null,
+    });
+    const student = response.data;
+    data.unassigned.push(student);
+    mentor.mentees = mentor.mentees.filter((mentee) => mentee.id !== menteeId);
+    render();
+  } catch (err) {
+    console.error(`Failed to update user (PUT /api/users/${menteeId})`, err);
+    error.innerText = err.response
+      ? err.response.data.message
+      : 'Request Timed Out';
+  }
+};
+
+const assignMentor = async (studentId, teacherId) => {
+  const mentor = getTeacherById(teacherId);
+  try {
+    const response = await axios.put(`/api/users/${studentId}`, {
+      mentorId: teacherId,
+    });
+    const student = response.data;
+    data.unassigned = data.unassigned.filter(
+      (_student) => _student.id !== studentId
+    );
+    mentor.mentees.push(student);
+    render();
+  } catch (err) {
+    console.error(`Failed to update user (PUT /api/users/${studentId})`, err);
+    error.innerText = err.response
+      ? err.response.data.message
+      : 'Request Timed Out';
+  }
 };
 
 content.addEventListener('click', async (ev) => {
   const action = ev.target.getAttribute('data-action');
   const id = +ev.target.getAttribute('data-id');
+  const mentorId = +ev.target.getAttribute('data-mentor-id');
   if (action === 'create-student') {
-    try {
-      const student = (
-        await axios.post('/api/users', { name: studentNameField.value })
-      ).data;
-      data.unassigned = [student, ...data.unassigned];
-      render();
-    } catch (ex) {
-      error.innerText = ex.response.data.message;
-    }
+    createStudent(studentNameField.value);
   } else if (action === 'delete-teacher') {
-    console.log(action, id);
-    try {
-      await axios.delete(`/api/users/${id}`);
-      data.teachers = data.teachers.filter((teacher) => teacher.id !== id);
-      render();
-    } catch (ex) {
-      error.innerText = ex.response.data.message;
-    }
+    deleteTeacher(id);
   } else if (action === 'delete-mentee') {
-    console.log('TODO - delete this mentee', id);
-    const teacherId = +ev.target.getAttribute('data-teacher-id');
-    const teacher = getTeacherById(teacherId);
-    await axios.delete(`/api/users/${id}`);
-    teacher.mentees = teacher.mentees.filter((mentee) => mentee.id !== id);
-    render();
+    deleteMentee(id, mentorId);
   } else if (action === 'delete-unassigned') {
-    await axios.delete(`/api/users/${id}`);
-    data.unassigned = data.unassigned.filter((student) => student.id !== id);
-    render();
+    deleteUnassignedStudent(id);
   } else if (action === 'make-teacher-a-student') {
-    try {
-      const student = (
-        await axios.put(`/api/users/${id}`, { userType: 'STUDENT' })
-      ).data;
-      data.unassigned.push(student);
-      data.teachers = data.teachers.filter((teacher) => teacher.id !== id);
-      render();
-    } catch (ex) {
-      error.innerText = ex.response.data.message;
-    }
+    makeTeacherAStudent(id);
   } else if (action === 'make-mentee-a-teacher') {
-    console.log('TODO - make this mentee a teacher', id);
-    const teacherId = +ev.target.getAttribute('data-teacher-id');
-    const mentor = getTeacherById(teacherId);
-    try {
-      const teacher = (
-        await axios.put(`/api/users/${id}`, { userType: 'TEACHER' })
-      ).data;
-      mentor.mentees = mentor.mentees.filter((mentee) => mentee.id === id);
-      data.teachers = [teacher, ...data.teachers];
-      render();
-    } catch (ex) {
-      error.innerText = ex.response.data.message;
-    }
+    makeMenteeATeacher(id, mentorId);
   } else if (action === 'make-unassigned-a-teacher') {
-    console.log('TODO - make this student a teacher', id);
-    const teacher = (
-      await axios.put(`/api/users/${id}`, { userType: 'TEACHER' })
-    ).data;
-    teacher.mentees = [];
-    data.unassigned = data.unassigned.filter((student) => student.id !== id);
-    data.teachers = [teacher, ...data.teachers];
-    render();
+    makeUnassignedATeacher(id);
   } else if (action === 'unassign-mentee') {
-    console.log('TODO - unassign this mentee', id);
-    const teacherId = +ev.target.getAttribute('data-teacher-id');
-    const mentor = getTeacherById(teacherId);
-    const student = (await axios.put(`/api/users/${id}`, { mentorId: null }))
-      .data;
-    data.unassigned.push(student);
-    mentor.mentees = mentor.mentees.filter((mentee) => mentee.id !== id);
-    render();
+    unassignMentee(id, mentorId);
   }
 });
 
@@ -184,21 +292,16 @@ content.addEventListener('change', async (ev) => {
   const action = ev.target.getAttribute('data-action');
   const id = +ev.target.getAttribute('data-id');
   if (action === 'assign-mentor') {
-    const mentor = getTeacherById(+ev.target.value);
-    const student = (
-      await axios.put(`/api/users/${id}`, { mentorId: ev.target.value })
-    ).data;
-    data.unassigned = data.unassigned.filter((_student) => _student.id !== id);
-    mentor.mentees.push(student);
-    render();
+    const teacherId = +ev.target.value;
+    assignMentor(id, teacherId);
   }
 });
 
-const render = () => {
+function render() {
   renderTeachers();
   renderUnassigned();
   studentNameField.value = '';
   error.innerText = '';
-};
+}
 
 start();

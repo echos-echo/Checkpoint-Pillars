@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.10.4",
+    "ascii-table": "0.0.9",
     "axios": "^0.19.2",
     "babel-loader": "^8.1.0",
     "chai": "^4.2.0",

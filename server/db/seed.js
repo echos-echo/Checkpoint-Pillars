@@ -34,9 +34,9 @@ const seed = async () => {
   await rob.setMentor(carl);
   await freddie.setMentor(jack);
 
-  return users.reduce((acc, user) => {
-    acc[user.name] = user;
-    return acc;
+  return users.reduce((allUsers, user) => {
+    allUsers[user.name] = user;
+    return allUsers;
   }, {});
 };
 

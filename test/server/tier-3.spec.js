@@ -1,4 +1,5 @@
 const { expect } = require('chai');
+const { cyan } = require('chalk');
 const {
   db,
   models: { User },
@@ -7,69 +8,137 @@ const {
 const _app = require('../../server/app');
 const app = require('supertest')(_app);
 
-describe('Tier 3: Sequelize Creating, POST (create) a New User', () => {
+describe('Tier 3: Virtual Fields, Route Parameters, DELETE Routes', () => {
   describe('Sequelize', () => {
     beforeEach(async () => {
       await db.sync({ force: true });
     });
 
-    describe('Creating', () => {
-      xit('cannot create a user whose mentor is not a TEACHER', async () => {
-        const freddy = await User.create({
-          name: 'FREDDY',
-          userType: 'STUDENT',
-        });
-        const jerryPromise = User.create({
-          name: 'JERRY',
-          mentorId: freddy.id,
-        });
-        await expect(jerryPromise).to.be.rejected;
+    describe('Virtual Fields: isStudent and isTeacher', () => {
+      before(() => {
+        console.log(
+          cyan(`
+        HINT: Sequelize documentation on Virtual Fields:
+        https://sequelize.org/master/manual/getters-setters-virtuals.html \n`)
+        );
       });
 
-      xit('can create a user whose mentor is a TEACHER', async () => {
-        const freddy = await User.create({
-          name: 'FREDDY',
-          userType: 'TEACHER',
+      describe('isStudent', () => {
+        xit('isStudent is true if the user is a student', async () => {
+          const ali = await User.create({
+            name: 'ALI',
+            userType: 'STUDENT',
+          });
+          expect(ali.isStudent).to.equal(true);
         });
-        const jerry = await User.create({
-          name: 'JERRY',
-          mentorId: freddy.id,
+
+        xit('isStudent is false if the user is NOT a student', async () => {
+          const hannah = await User.create({
+            name: 'HANNAH',
+            userType: 'TEACHER',
+          });
+          expect(hannah.isStudent).to.equal(false);
         });
-        expect(jerry.mentorId).to.equal(freddy.id);
+
+        xit("isStudent is virtual (it doesn't appear as a column in the database)", async () => {
+          const ali = await User.create({
+            name: 'ALI',
+            userType: 'STUDENT',
+          });
+          // The dataValues of a Sequelize instance reflect the columns in that database table.
+          // We want isStudent to be _derived_ from the userType property.
+          expect(ali.dataValues.isStudent).to.equal(undefined);
+        });
+      });
+
+      describe('isTeacher', () => {
+        xit('isTeacher is true if the user is a teacher', async () => {
+          const hannah = await User.create({
+            name: 'HANNAH',
+            userType: 'TEACHER',
+          });
+          expect(hannah.isTeacher).to.equal(true);
+        });
+
+        xit('isTeacher is false if the user is NOT a teacher', async () => {
+          const ali = await User.create({
+            name: 'ALI',
+            userType: 'STUDENT',
+          });
+          expect(ali.isTeacher).to.equal(false);
+        });
+
+        xit("isTeacher is virtual (it doesn't appear as a column in the database)", async () => {
+          const hannah = await User.create({
+            name: 'HANNAH',
+            userType: 'TEACHER',
+          });
+          // The dataValues of a Sequelize instance reflect the columns in that database table.
+          // We want isTeacher to be _derived_ from the userType property.
+          expect(hannah.dataValues.isTeacher).to.equal(undefined);
+        });
       });
     });
   });
 
   describe('Express', () => {
+    let users;
+
     beforeEach(async () => {
       await db.sync({ force: true });
-      const _users = await Promise.all([
-        User.create({ name: 'MOE' }),
-        User.create({ name: 'LUCY', userType: 'TEACHER' }),
-        User.create({ name: 'HANNAH', userType: 'TEACHER' }),
-        User.create({ name: 'WANDA' }),
-        User.create({ name: 'EDDY' }),
-      ]);
+      const _users = await User.bulkCreate(
+        [
+          { name: 'MOE' },
+          { name: 'LUCY', userType: 'TEACHER' },
+          { name: 'HANNAH', userType: 'TEACHER' },
+          { name: 'WANDA' },
+          { name: 'EDDY' },
+        ],
+        { hooks: false }
+      );
       const [moe, lucy] = _users;
-      await moe.setMentor(lucy);
+      await moe.setMentor(lucy, { hooks: false });
+      users = _users.reduce((allUsers, user) => {
+        allUsers[user.name] = user;
+        return allUsers;
+      }, {});
     });
 
-    describe('POST /api/users', () => {
-      xit('responds with 201 and the newly created user', async () => {
-        const response = await app.post('/api/users').send({ name: 'FLIP' });
-        expect(response.status).to.equal(201);
-        expect(response.body).to.be.an('object');
-        expect(response.body.name).to.equal('FLIP');
-        // Let's make sure the new user is actually persisted in the database
-        const usersAfterPost = await User.findAll();
-        const flip = usersAfterPost.find((user) => user.name === 'FLIP');
-        expect(flip).to.not.equal(undefined);
+    describe('DELETE /api/users/:id', () => {
+      before(() => {
+        console.log(
+          cyan(
+            `
+        HINT: Express documentation on
+        - Request Parameters:
+          https://expressjs.com/en/guide/routing.html#route-parameters
+        - res.status (also take a look at res.sendStatus):
+          https://expressjs.com/en/api.html#res.status \n`
+          )
+        );
       });
 
-      xit('responds with 409 if the name is already taken', async () => {
-        const response = await app.post('/api/users').send({ name: 'MOE' });
-        expect(response.status).to.equal(409);
-        // No users should have been created
+      xit('deletes an existing user by their id and responds with 204', async () => {
+        let moe = users.MOE;
+        const response = await app.delete(`/api/users/${moe.id}`);
+        expect(response.status).to.equal(204);
+        moe = await User.findByPk(users.MOE.id);
+        expect(moe, 'MOE should have been deleted, but was not').to.equal(null);
+        // Only one user should have been deleted
+        expect(await User.findAll()).to.have.lengthOf(4);
+      });
+
+      xit('responds with 404 if the user does not exist', async () => {
+        const response = await app.delete('/api/users/10000');
+        expect(response.status).to.equal(404);
+        // No users should have been deleted
+        expect(await User.findAll()).to.have.lengthOf(5, 'Oops');
+      });
+
+      xit('responds with 400 if the id is not a number', async () => {
+        const response = await app.delete('/api/users/not_a_valid_id');
+        expect(response.status).to.equal(400);
+        // No users should have been deleted
         expect(await User.findAll()).to.have.lengthOf(5);
       });
     });

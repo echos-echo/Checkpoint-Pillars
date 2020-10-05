@@ -94,14 +94,17 @@ describe('Extra Credit: CSS, Instance Methods, Many-to-Many, Query Params', () =
   describe('Express', () => {
     beforeEach(async () => {
       await db.sync({ force: true });
-      await Promise.all([
-        User.create({ name: 'RED', userType: 'TEACHER' }),
-        User.create({ name: 'WANDA' }),
-        User.create({ name: 'EDDY' }),
-        User.create({ name: 'FREDDIE' }),
-        User.create({ name: 'CARL', userType: 'TEACHER' }),
-        User.create({ name: 'MEL' }),
-      ]);
+      await User.bulkCreate(
+        [
+          { name: 'Red', userType: 'TEACHER' },
+          { name: 'Wanda' },
+          { name: 'Eddy' },
+          { name: 'Freddie' },
+          { name: 'Carl', userType: 'TEACHER' },
+          { name: 'Mel' },
+        ],
+        { hooks: false }
+      );
     });
 
     describe('Query Params', () => {
@@ -111,7 +114,7 @@ describe('Extra Credit: CSS, Instance Methods, Many-to-Many, Query Params', () =
         expect(response.body).to.be.an('array');
         expect(response.body).to.have.lengthOf(3);
         const usersNames = response.body.map((user) => user.name);
-        expect(usersNames).to.have.members(['RED', 'EDDY', 'FREDDIE']);
+        expect(usersNames).to.have.members(['Red', 'Eddy', 'Freddie']);
       });
     });
   });
