@@ -61,7 +61,7 @@ const renderMentees = (mentees) => {
       <li>
         ${mentee.name}
         <button data-mentor-id='${mentee.mentorId}' data-action='delete-mentee' data-id='${mentee.id}'>x</button>
-        <button data-mentor-id='${mentee.mentorId}' data-action='unassign-mentee' data-id='${mentee.id}'>Unassigne Mentee</button>
+        <button data-mentor-id='${mentee.mentorId}' data-action='unassign-mentee' data-id='${mentee.id}'>Unassign Mentee</button>
         <button data-mentor-id='${mentee.mentorId}' data-action='make-mentee-a-teacher' data-id='${mentee.id}'>Make Teacher</button>
       </li>
     `;
