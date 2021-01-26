@@ -31,8 +31,8 @@ Please read the Academic Integrity Policy (`pillars-academic-integrity-policy.md
   - Development Database: `createdb pillars`
   - Test Database: `createdb pillars_test`
 - `npm install`
-- You can run `npm run test-dev` which will run the test suite continuously (`npm test` runs the tests only once).
-- In a separate terminal, you can run `npm run start-dev-seed` which will start [a development server on port 3000](http://localhost:3000). It will also re-seed the database with fresh data whenever you save a file. (If you'd rather not re-seed on every change, you can run `npm run start-dev` instead.)
+- You can run `npm run test-dev` (windows users can run `npm run test-windows`) which will run the test suite continuously (`npm test` runs the tests only once).
+- In a separate terminal, you can run `npm run start-dev-seed` (windows users can run `npm run start-windows-server-seed` in one terminal and `npm run start-windows-client` in another) which will start [a development server on port 3000](http://localhost:3000). It will also re-seed the database with fresh data whenever you save a file. (If you'd rather not re-seed on every change, you can run `npm run start-dev` (or `npm run start-windows-server`) instead.)
 - Start working through the tests in `test/`. You have to mark them as active (from pending) by changing `xit` to `it`
 - Read through the project structure. You'll be working exclusively in `server/db/User.js` and `server/routes/users.js`.
 - After three hours, take a break. Before the break, do a `git commit -am "BREAKTIME" && git push origin master`. You are encouraged to keep working on the project and submit a final version by the end of day.
