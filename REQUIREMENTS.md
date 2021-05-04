@@ -42,7 +42,7 @@ Your final evaluation will be weighted as follows:
 
 If you've finished all the Tier 1 requirements, now's a good time to commit your work and push to GitHub:
 
-`git commit -am "Tier 1" && git push origin master`
+`git commit -am "Tier 1" && git push origin main`
 
 #### Tier 2: Eager Loading, One-To-Many Associations (3 total)
 
@@ -57,7 +57,7 @@ If you've finished all the Tier 1 requirements, now's a good time to commit your
 
 If you've finished all the Tier 2 requirements, now's a good time to commit your work and push to GitHub:
 
-`git commit -am "Tier 2" && git push origin master`
+`git commit -am "Tier 2" && git push origin main`
 
 #### Tier 3: Virtual Fields, Route Parameters, DELETE Routes (5 total)
 
@@ -74,7 +74,7 @@ If you've finished all the Tier 2 requirements, now's a good time to commit your
 
 If you've finished all the Tier 3 requirements, now's a good time to commit your work and push to GitHub:
 
-`git commit -am "Tier 3" && git push origin master`
+`git commit -am "Tier 3" && git push origin main`
 
 #### Tier 4: POST Routes, Request Body (2 total)
 
@@ -85,7 +85,7 @@ If you've finished all the Tier 3 requirements, now's a good time to commit your
 
 If you've finished all the Tier 4 requirements, now's a good time to commit your work and push to GitHub:
 
-`git commit -am "Tier 4" && git push origin master`
+`git commit -am "Tier 4" && git push origin main`
 
 #### Tier 5: Sequelize Update Hook, PUT Routes, Express Error Handling (6 total)
 

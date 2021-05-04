@@ -35,7 +35,7 @@ Please read the Academic Integrity Policy (`pillars-academic-integrity-policy.md
 - In a separate terminal, you can run `npm run start-dev-seed` (windows users can run `npm run start-windows-server-seed` in one terminal and `npm run start-windows-client` in another) which will start [a development server on port 3000](http://localhost:3000). It will also re-seed the database with fresh data whenever you save a file. (If you'd rather not re-seed on every change, you can run `npm run start-dev` (or `npm run start-windows-server`) instead.)
 - Start working through the tests in `test/`. You have to mark them as active (from pending) by changing `xit` to `it`
 - Read through the project structure. You'll be working exclusively in `server/db/User.js` and `server/routes/users.js`.
-- After three hours, take a break. Before the break, do a `git commit -am "BREAKTIME" && git push origin master`. You are encouraged to keep working on the project and submit a final version by the end of day.
+- After three hours, take a break. Before the break, do a `git commit -am "BREAKTIME" && git push origin main`. You are encouraged to keep working on the project and submit a final version by the end of day.
 
 ## IMPORTANT TIPS FOR SUCCESS
 
@@ -50,4 +50,4 @@ Please read the Academic Integrity Policy (`pillars-academic-integrity-policy.md
 
 To submit your final version:
 
-`git commit -am "FINAL" && git push origin master`
+`git commit -am "FINAL" && git push origin main`
