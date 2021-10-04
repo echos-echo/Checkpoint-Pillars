@@ -23,6 +23,7 @@ The purpose of this project is for you to write code that demonstrates what you'
 
 - **MDN**: https://developer.mozilla.org/en-US/docs/Web/JavaScript
 - **Express**: https://expressjs.com/en/4x/api.html
-- **Sequelize (Official)**: https://sequelize.org/master/
-- **Sequelize (Fullstack)**: https://sequelizedocs.fullstackacademy.com/
-  - ***Disclaimer:*** Some syntax in the FSA Sequelize Guides is **deprecated** (e.g. `findById` --> `findByPk`).
+- **Sequelize**: https://sequelize.org/master/
+
+<!-- - **Sequelize (Fullstack)**: https://sequelizedocs.fullstackacademy.com/
+  - ***Disclaimer:*** Some syntax in the FSA Sequelize Guides is **deprecated** (e.g. `findById` -> `findByPk`). -->
