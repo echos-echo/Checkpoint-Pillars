@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { Sequelize } = require('sequelize');
 const {
   models: { User },
 } = require('../db');
@@ -17,6 +18,14 @@ const {
  */
 
 // Add your routes here:
+
+router.get('/', async (req, res, next) => {
+  try {
+    res.send(await User.findAll({ where: { name: { [Sequelize.Op.iLike]: `%${req.query.name}%`}}}));
+  } catch(err) {
+    next(err);
+  }
+})
 
 // gets all students not assigned to a mentor
 router.get('/unassigned', async (req, res, next) => {

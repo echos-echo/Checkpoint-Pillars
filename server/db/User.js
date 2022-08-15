@@ -42,7 +42,7 @@ User.findUnassignedStudents = async () => {
   });
 }
 
-// Class method: returns object of teacher users that include their list of mentees (as an array, may be empty)
+// Class method: returns array of teacher users that include their list of mentees (as an array, may be empty)
 User.findTeachersAndMentees = async () => {
   return await User.findAll({
     where: {
@@ -53,6 +53,25 @@ User.findTeachersAndMentees = async () => {
       as: 'mentees'
     }
   })
+}
+
+User.prototype.getPeers = async function() {
+  const mentor = await User.findOne({
+    where: {
+      userType: 'TEACHER',
+      id: this.mentorId
+    },
+    include: {
+      model: User,
+      as: 'mentees',
+      where: {
+        id: {
+          [Sequelize.Op.not]: this.id
+        }
+      }
+    }
+  });
+  return mentor.mentees;
 }
 
 User.beforeUpdate(async update => {
