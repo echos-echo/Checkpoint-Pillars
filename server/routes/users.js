@@ -31,8 +31,8 @@ router.get('/', async (req, res, next) => {
 // will create a new user if one by the given name does not already exist
 router.post('/', async (req, res, next) => {
   try {
-    await User.findOne({ where: { name: req.body.name }}) === null ?
-      res.status(201).send(await User.create(req.body)) : res.sendStatus(409);
+    await User.findOne({ where: { name: { [Sequelize.Op.iLike]: req.body.name } }}) !== null ?
+    res.sendStatus(409) : res.status(201).send(await User.create(req.body));
   } catch(err) {
     next(err);
   }
