@@ -24,7 +24,7 @@ describe('Tier 3: Virtual Fields, Route Parameters, DELETE Routes', () => {
       });
 
       describe('isStudent', () => {
-        xit('isStudent is true if the user is a student', async () => {
+        it('isStudent is true if the user is a student', async () => {
           const ali = await User.create({
             name: 'ALI',
             userType: 'STUDENT',
@@ -32,7 +32,7 @@ describe('Tier 3: Virtual Fields, Route Parameters, DELETE Routes', () => {
           expect(ali.isStudent).to.equal(true);
         });
 
-        xit('isStudent is false if the user is NOT a student', async () => {
+        it('isStudent is false if the user is NOT a student', async () => {
           const hannah = await User.create({
             name: 'HANNAH',
             userType: 'TEACHER',
@@ -40,7 +40,7 @@ describe('Tier 3: Virtual Fields, Route Parameters, DELETE Routes', () => {
           expect(hannah.isStudent).to.equal(false);
         });
 
-        xit("isStudent is virtual (it doesn't appear as a column in the database)", async () => {
+        it("isStudent is virtual (it doesn't appear as a column in the database)", async () => {
           const ali = await User.create({
             name: 'ALI',
             userType: 'STUDENT',
@@ -52,7 +52,7 @@ describe('Tier 3: Virtual Fields, Route Parameters, DELETE Routes', () => {
       });
 
       describe('isTeacher', () => {
-        xit('isTeacher is true if the user is a teacher', async () => {
+        it('isTeacher is true if the user is a teacher', async () => {
           const hannah = await User.create({
             name: 'HANNAH',
             userType: 'TEACHER',
@@ -60,7 +60,7 @@ describe('Tier 3: Virtual Fields, Route Parameters, DELETE Routes', () => {
           expect(hannah.isTeacher).to.equal(true);
         });
 
-        xit('isTeacher is false if the user is NOT a teacher', async () => {
+        it('isTeacher is false if the user is NOT a teacher', async () => {
           const ali = await User.create({
             name: 'ALI',
             userType: 'STUDENT',
@@ -68,7 +68,7 @@ describe('Tier 3: Virtual Fields, Route Parameters, DELETE Routes', () => {
           expect(ali.isTeacher).to.equal(false);
         });
 
-        xit("isTeacher is virtual (it doesn't appear as a column in the database)", async () => {
+        it("isTeacher is virtual (it doesn't appear as a column in the database)", async () => {
           const hannah = await User.create({
             name: 'HANNAH',
             userType: 'TEACHER',
@@ -118,7 +118,7 @@ describe('Tier 3: Virtual Fields, Route Parameters, DELETE Routes', () => {
         );
       });
 
-      xit('deletes an existing user by their id and responds with 204', async () => {
+      it('deletes an existing user by their id and responds with 204', async () => {
         let moe = users.MOE;
         const response = await app.delete(`/api/users/${moe.id}`);
         expect(response.status).to.equal(204);
@@ -128,14 +128,14 @@ describe('Tier 3: Virtual Fields, Route Parameters, DELETE Routes', () => {
         expect(await User.findAll()).to.have.lengthOf(4);
       });
 
-      xit('responds with 404 if the user does not exist', async () => {
+      it('responds with 404 if the user does not exist', async () => {
         const response = await app.delete('/api/users/10000');
         expect(response.status).to.equal(404);
         // No users should have been deleted
         expect(await User.findAll()).to.have.lengthOf(5, 'Oops');
       });
 
-      xit('responds with 400 if the id is not a number', async () => {
+      it('responds with 400 if the id is not a number', async () => {
         const response = await app.delete('/api/users/not_a_valid_id');
         expect(response.status).to.equal(400);
         // No users should have been deleted

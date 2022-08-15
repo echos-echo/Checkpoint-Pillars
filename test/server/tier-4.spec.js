@@ -44,7 +44,7 @@ describe('Tier 4: POST Routes, Request Body', () => {
     });
 
     describe('POST /api/users', () => {
-      xit('responds with 201 and the newly created user', async () => {
+      it('responds with 201 and the newly created user', async () => {
         const response = await app.post('/api/users').send({ name: 'FLIP' });
         expect(response.status).to.equal(201);
         expect(response.body).to.be.an('object');
@@ -62,7 +62,7 @@ describe('Tier 4: POST Routes, Request Body', () => {
         );
       });
 
-      xit('responds with 409 if the name is already taken', async () => {
+      it('responds with 409 if the name is already taken', async () => {
         const response = await app.post('/api/users').send({ name: 'MOE' });
         expect(response.status).to.equal(409, 'Incorrect status code');
         // No users should have been created

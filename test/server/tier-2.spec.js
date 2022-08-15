@@ -38,14 +38,14 @@ describe('Tier 2: Eager Loading, One-To-Many Associations', () => {
     });
 
     describe('Class Method: findTeachersAndMentees', () => {
-      xit('User.findTeachersAndMentees is a class method', () => {
+      it('User.findTeachersAndMentees is a class method', () => {
         expect(User.findTeachersAndMentees).to.be.a(
           'function',
           "findTeachersAndMentees isn't a class method!"
         );
       });
 
-      xit('User.findTeachersAndMentees returns all teachers', async () => {
+      it('User.findTeachersAndMentees returns all teachers', async () => {
         const teachers = await User.findTeachersAndMentees();
         expect(teachers).to.be.a('array', "Didn't return an array!");
         expect(teachers).to.have.lengthOf(2, 'Wrong number of teachers!');
@@ -56,7 +56,7 @@ describe('Tier 2: Eager Loading, One-To-Many Associations', () => {
         );
       });
 
-      xit("User.findTeachersAndMentees returns all teachers's assigned mentees", async () => {
+      it("User.findTeachersAndMentees returns all teachers's assigned mentees", async () => {
         const teachers = await User.findTeachersAndMentees();
         const lucy = teachers.find((teacher) => teacher.name === 'LUCY');
         const hannah = teachers.find((teacher) => teacher.name === 'HANNAH');
@@ -81,7 +81,7 @@ describe('Tier 2: Eager Loading, One-To-Many Associations', () => {
 
   describe('Express', () => {
     describe('GET /api/users/teachers', () => {
-      xit('responds with all teachers', async () => {
+      it('responds with all teachers', async () => {
         const response = await app.get('/api/users/teachers');
         expect(response.status).to.equal(200);
         expect(response.body).to.be.an('array');
@@ -91,7 +91,7 @@ describe('Tier 2: Eager Loading, One-To-Many Associations', () => {
         expect(names).to.include('HANNAH');
       });
 
-      xit('responds with all teachers and their mentees', async () => {
+      it('responds with all teachers and their mentees', async () => {
         const response = await app.get('/api/users/teachers');
         expect(response.status).to.equal(200);
         expect(response.body).to.be.an('array');

@@ -21,7 +21,7 @@ describe('Tier 1: Basic Fields, Class Methods, GET Routes', () => {
 
     describe('Basic Fields: name and userType', () => {
       describe('name', () => {
-        xit('name is a string', async () => {
+        it('name is a string', async () => {
           const hannah = await User.create({ name: 'HANNAH' });
           expect(hannah.name).to.equal(
             'HANNAH',
@@ -29,7 +29,7 @@ describe('Tier 1: Basic Fields, Class Methods, GET Routes', () => {
           );
         });
 
-        xit('name must be unique', async () => {
+        it('name must be unique', async () => {
           // We shouldn't be able to create two users with the same name.
           await User.create({ name: 'HANNAH' });
           await expect(
@@ -38,7 +38,7 @@ describe('Tier 1: Basic Fields, Class Methods, GET Routes', () => {
           ).to.be.rejected;
         });
 
-        xit('name cannot be null', async () => {
+        it('name cannot be null', async () => {
           // We shouldn't be able to create a user without a name.
           await expect(
             User.create({}),
@@ -46,7 +46,7 @@ describe('Tier 1: Basic Fields, Class Methods, GET Routes', () => {
           ).to.be.rejected;
         });
 
-        xit('name cannot be an empty string', async () => {
+        it('name cannot be an empty string', async () => {
           // We also shouldn't be able to create a user with an empty name.
           await expect(
             User.create({ name: '' }),
@@ -56,7 +56,7 @@ describe('Tier 1: Basic Fields, Class Methods, GET Routes', () => {
       });
 
       describe('userType', () => {
-        xit('userType can be either "STUDENT" or "TEACHER"', async () => {
+        it('userType can be either "STUDENT" or "TEACHER"', async () => {
           const hannah = await User.create({
             name: 'HANNAH',
             userType: 'TEACHER',
@@ -66,12 +66,12 @@ describe('Tier 1: Basic Fields, Class Methods, GET Routes', () => {
           expect(ali.userType).to.equal('STUDENT');
         });
 
-        xit('userType defaults to "STUDENT" if not provided', async () => {
+        it('userType defaults to "STUDENT" if not provided', async () => {
           const ali = await User.create({ name: 'ALI' });
           expect(ali.userType).to.equal('STUDENT');
         });
 
-        xit('userType cannot be null', async () => {
+        it('userType cannot be null', async () => {
           const aliPromise = User.create({
             name: 'ALI',
             userType: null,
@@ -82,7 +82,7 @@ describe('Tier 1: Basic Fields, Class Methods, GET Routes', () => {
           ).to.be.rejected;
         });
 
-        xit('userType can ONLY be either "STUDENT" or "TEACHER"', async () => {
+        it('userType can ONLY be either "STUDENT" or "TEACHER"', async () => {
           const aliPromise = User.create({
             name: 'ALI',
             userType: 'EAGER_TO_LEARN', // Invalid userType! This promise should reject.
@@ -96,14 +96,14 @@ describe('Tier 1: Basic Fields, Class Methods, GET Routes', () => {
     });
 
     describe('Class Method: findUnassignedStudents', () => {
-      xit('User.findUnassignedStudents is a class method', () => {
+      it('User.findUnassignedStudents is a class method', () => {
         expect(User.findUnassignedStudents).to.be.a(
           'function',
           "findTeachersAndMentees isn't a class method"
         );
       });
 
-      xit('User.findUnassignedStudents returns all students who do not have a mentor', async () => {
+      it('User.findUnassignedStudents returns all students who do not have a mentor', async () => {
         const freddy = await User.create({
           name: 'FREDDY',
           userType: 'TEACHER',
@@ -167,7 +167,7 @@ describe('Tier 1: Basic Fields, Class Methods, GET Routes', () => {
     });
 
     describe('GET /api/users/unassigned', () => {
-      xit('responds with all unassigned students', async () => {
+      it('responds with all unassigned students', async () => {
         const response = await app.get('/api/users/unassigned');
         expect(response.status).to.equal(200);
         expect(response.body).to.be.an('array');
@@ -176,7 +176,7 @@ describe('Tier 1: Basic Fields, Class Methods, GET Routes', () => {
         expect(names).to.include('EDDY');
       });
 
-      xit('does not include any teachers in the response', async () => {
+      it('does not include any teachers in the response', async () => {
         const response = await app.get('/api/users/unassigned');
         const names = response.body.map((user) => user.name);
         expect(names).to.not.include(
@@ -189,7 +189,7 @@ describe('Tier 1: Basic Fields, Class Methods, GET Routes', () => {
         );
       });
 
-      xit('does not include any students who have a mentor', async () => {
+      it('does not include any students who have a mentor', async () => {
         const response = await app.get('/api/users/unassigned');
         const names = response.body.map((user) => user.name);
         expect(names).to.not.include(

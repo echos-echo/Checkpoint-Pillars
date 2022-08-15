@@ -67,8 +67,6 @@ User.beforeUpdate(async function(update) {
   // can probably do something with findTeachersAndMentees
   // in the array, if the object with the update.id is found... has a mentee lol
 
-  // the mentor user, if there is one by the valid id
-  const maybeMentor = await User.findByPk(update.mentorId);
   // array of mentor objects with a mentees array inside
   const hasMentees = await User.findTeachersAndMentees();
 
@@ -77,17 +75,11 @@ User.beforeUpdate(async function(update) {
     throw new Error(`${update.name} has a mentee! They cannot become a student yet`)
   } else {
     // for students, OR teachers with no mentees
-
+    const maybeMentor = await User.findByPk(update.mentorId);
     const user = await User.findByPk(update.id);
 
     if (user.mentorId !== null){
       throw new Error(`${update.name} has a mentor! They cannot become a teacher yet`)
-      }
-
-
-    if (maybeMentor !== null && maybeMentor.userType === 'TEACHER') {
-      console.dir('there is a mentor of id and they are a teacher')
-      return update;
     } else if (maybeMentor !== null && maybeMentor.userType === 'STUDENT'){
       throw new Error('Not a teacher!!!');
     }

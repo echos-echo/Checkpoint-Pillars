@@ -124,7 +124,7 @@ describe('Tier 5: Sequelize Update Hook, PUT Routes, Express Error Handling', ()
     });
 
     describe('PUT /api/users/:id', () => {
-      xit('responds with 200 and the updated user', async () => {
+      it('responds with 200 and the updated user', async () => {
         const response = await app
           .put(`/api/users/${users.EDDY.id}`)
           .send({ name: 'Eddie', userType: 'TEACHER' });
@@ -132,7 +132,7 @@ describe('Tier 5: Sequelize Update Hook, PUT Routes, Express Error Handling', ()
         expect(response.body.name).to.equal('Eddie');
       });
 
-      xit('responds with 404 if the user does not exist', async () => {
+      it('responds with 404 if the user does not exist', async () => {
         const response = await app.put('/api/users/10000').send({
           name: 'NO ONE HERE',
         });
@@ -173,29 +173,29 @@ describe('Tier 5: Sequelize Update Hook, PUT Routes, Express Error Handling', ()
         });
       });
 
-      xit('GET /api/users/unassigned', async () => {
+      it('GET /api/users/unassigned', async () => {
         const response = await app.get('/api/users/unassigned').timeout(200);
         expect(response.status).to.equal(500);
       });
 
-      xit('GET /api/users/teachers', async () => {
+      it('GET /api/users/teachers', async () => {
         const response = await app.get('/api/users/teachers').timeout(200);
         expect(response.status).to.equal(500);
       });
 
-      xit('DELETE /api/users/:id', async () => {
+      it('DELETE /api/users/:id', async () => {
         const response = await app.delete('/api/users/1').timeout(200);
         expect(response.status).to.equal(500);
       });
 
-      xit('POST /api/users', async () => {
+      it('POST /api/users', async () => {
         const response = await app
           .post('/api/users', { name: 'TINA' })
           .timeout(200);
         expect(response.status).to.equal(500);
       });
 
-      xit('PUT /api/users/:id', async () => {
+      it('PUT /api/users/:id', async () => {
         const response = await app
           .put('/api/users/1', { name: 'TINA' })
           .timeout(200);
