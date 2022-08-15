@@ -58,6 +58,7 @@ const renderMentees = (mentees) => {
   const html = mentees
     .map((mentee) => {
       return `
+      <hr>
       <li>
         ${mentee.name}
         <button data-mentor-id='${mentee.mentorId}' class='delete' data-action='delete-mentee' data-id='${mentee.id}'>x</button>

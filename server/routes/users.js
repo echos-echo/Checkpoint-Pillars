@@ -28,6 +28,16 @@ router.get('/', async (req, res, next) => {
   }
 })
 
+// will create a new user if one by the given name does not already exist
+router.post('/', async (req, res, next) => {
+  try {
+    await User.findOne({ where: { name: req.body.name }}) === null ?
+      res.status(201).send(await User.create(req.body)) : res.sendStatus(409);
+  } catch(err) {
+    next(err);
+  }
+})
+
 // gets all students not assigned to a mentor
 router.get('/unassigned', async (req, res, next) => {
   try {
@@ -82,14 +92,5 @@ router.route('/:id')
     }
   })
 
-// will create a new user if one by the given name does not already exist
-router.post('/', async (req, res, next) => {
-  try {
-    await User.findOne({ where: { name: req.body.name }}) === null ?
-      res.status(201).send(await User.create(req.body)) : res.sendStatus(409);
-  } catch(err) {
-    next(err);
-  }
-})
 
 module.exports = router;
