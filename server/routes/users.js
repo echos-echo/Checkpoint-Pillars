@@ -19,24 +19,25 @@ const {
 
 // Add your routes here:
 
-// gets all users where part of their name matches with the queried username
-router.get('/', async (req, res, next) => {
-  try {
-    res.send(await User.findAll({ where: { name: { [Sequelize.Op.iLike]: `%${req.query.name}%`}}}));
-  } catch(err) {
-    next(err);
-  }
-})
-
-// will create a new user if one by the given name does not already exist
-router.post('/', async (req, res, next) => {
-  try {
-    await User.findOne({ where: { name: { [Sequelize.Op.iLike]: req.body.name } }}) !== null ?
-    res.sendStatus(409) : res.status(201).send(await User.create(req.body));
-  } catch(err) {
-    next(err);
-  }
-})
+// all routes for '/' *(/api/users/)
+router.route('/')
+  // gets all users where part of their name matches with the queried username
+  .get(async (req, res, next) => {
+    try {
+      res.send(await User.findAll({ where: { name: { [Sequelize.Op.iLike]: `%${req.query.name}%`}}}));
+    } catch(err) {
+      next(err);
+    }
+  })
+  // will create a new user if one by the given name does not already exist
+  .post(async (req, res, next) => {
+    try {
+      await User.findOne({ where: { name: { [Sequelize.Op.iLike]: req.body.name } }}) !== null ?
+      res.sendStatus(409) : res.status(201).send(await User.create(req.body));
+    } catch(err) {
+      next(err);
+    }
+  })
 
 // gets all students not assigned to a mentor
 router.get('/unassigned', async (req, res, next) => {
