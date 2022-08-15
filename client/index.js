@@ -4,7 +4,7 @@ axios.defaults.timeout = 2000;
 const teacherList = document.querySelector('#teachers');
 const unassignedList = document.querySelector('#unassigned');
 const studentNameField = document.querySelector('#name');
-const content = document.querySelector('#content');
+const body = document.querySelector('body');
 const error = document.querySelector('#error');
 
 const data = {
@@ -266,7 +266,7 @@ const assignMentor = async (studentId, teacherId) => {
   }
 };
 
-content.addEventListener('click', async (ev) => {
+body.addEventListener('click', async (ev) => {
   const action = ev.target.getAttribute('data-action');
   const id = +ev.target.getAttribute('data-id');
   const mentorId = +ev.target.getAttribute('data-mentor-id');
@@ -289,7 +289,7 @@ content.addEventListener('click', async (ev) => {
   }
 });
 
-content.addEventListener('change', async (ev) => {
+body.addEventListener('change', async (ev) => {
   const action = ev.target.getAttribute('data-action');
   const id = +ev.target.getAttribute('data-id');
   if (action === 'assign-mentor') {
