@@ -55,8 +55,8 @@ User.findTeachersAndMentees = async () => {
   })
 }
 
+// Instance method: returns array of all peers that have the same mentor as this, sans this student
 User.prototype.getPeers = async function() {
-  // gets all students who have the same mentor as this (student), sans this (student)
   return await User.findAll({
     where: {
       mentorId: this.mentorId,
@@ -68,19 +68,21 @@ User.prototype.getPeers = async function() {
 }
 
 User.beforeUpdate(async update => {
-  // array of mentor objects with a mentees array inside
-  const hasMentees = await User.findTeachersAndMentees();
-
-  // if user is a TEACHER!!!
-  if (hasMentees.some(teacher => teacher.name === update.name && teacher.mentees.length > 0)) {
+  // if user is a TEACHER!!! --> and it matches the update's name + has at least 1 mentee
+  if ((await User.findTeachersAndMentees()).some(teacher => teacher.name === update.name && teacher.mentees.length > 0)) {
     throw new Error(`${update.name} has a mentee! They cannot become a student yet`)
   } else {
     // if user is a STUDENT
     const maybeMentor = await User.findByPk(update.mentorId); // the mentor user via the given id
-    const user = await User.findByPk(update.id);              // the user given the id (should be a student)
 
-    if (user.mentorId !== null ){
-      // if the student from database has a mentor
+    // if they are trying update to make mentor null, let them! it will let the unassigning functions work
+    if (update.mentorId === null) {
+      return update;
+    }
+
+    // other scenarios...
+    if ((await User.findByPk(update.id)).mentorId !== null ){
+      // if the given student from database has a mentor
       throw new Error(`${update.name} has a mentor! They cannot become a teacher yet`)
     } else if (maybeMentor !== null && maybeMentor.userType === 'STUDENT'){
       // if the mentor via the given id is in fact, not a teacher!!

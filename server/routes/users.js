@@ -52,6 +52,7 @@ router.route('/:id')
   .put(async (req, res, next) => {
     try {
       const user = await User.findByPk(req.params.id);
+      console.log(req.body);
       // if the user does not exist, sends 404. if they do, updates the row
       user === null ? res.sendStatus(404) : res.status(200).send(await user.update(req.body));
     } catch(err) {
