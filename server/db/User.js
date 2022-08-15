@@ -30,8 +30,9 @@ const User = db.define('user', {
   }
 });
 
+// Class method: returns all students who are not assigned a mentor
 User.findUnassignedStudents = async () => {
-  const users =  await User.findAll({
+  return await User.findAll({
     where: {
       userType: 'STUDENT',
       mentorId: {
@@ -39,9 +40,9 @@ User.findUnassignedStudents = async () => {
       }
     }
   });
-  return users;
 }
 
+// Class method: returns object of teacher users that include their list of mentees (as an array, may be empty)
 User.findTeachersAndMentees = async () => {
   return await User.findAll({
     where: {
