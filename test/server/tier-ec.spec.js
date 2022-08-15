@@ -8,7 +8,7 @@ const {
 const _app = require('../../server/app');
 const app = require('supertest')(_app);
 
-describe.only('Extra Credit: CSS, Instance Methods, Many-to-Many, Query Params', () => {
+describe('Extra Credit: CSS, Instance Methods, Many-to-Many, Query Params', () => {
   before(() => {
     console.log(
       cyan(`

@@ -56,22 +56,15 @@ User.findTeachersAndMentees = async () => {
 }
 
 User.prototype.getPeers = async function() {
-  const mentor = await User.findOne({
+  // gets all students who have the same mentor as this (student), sans this (student)
+  return await User.findAll({
     where: {
-      userType: 'TEACHER',
-      id: this.mentorId
-    },
-    include: {
-      model: User,
-      as: 'mentees',
-      where: {
-        id: {
-          [Sequelize.Op.not]: this.id
-        }
+      mentorId: this.mentorId,
+      id: {
+        [Sequelize.Op.not]: this.id
       }
     }
   });
-  return mentor.mentees;
 }
 
 User.beforeUpdate(async update => {

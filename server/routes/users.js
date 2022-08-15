@@ -19,6 +19,7 @@ const {
 
 // Add your routes here:
 
+// gets all users where part of their name matches with the queried username
 router.get('/', async (req, res, next) => {
   try {
     res.send(await User.findAll({ where: { name: { [Sequelize.Op.iLike]: `%${req.query.name}%`}}}));
@@ -89,7 +90,5 @@ router.post('/', async (req, res, next) => {
     next(err);
   }
 })
-
-
 
 module.exports = router;
