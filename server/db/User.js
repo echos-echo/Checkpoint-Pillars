@@ -54,35 +54,26 @@ User.findTeachersAndMentees = async () => {
   })
 }
 
-// User.beforeUpdate(async function(update) {
-//   const maybeMentor = await User.findByPk(update.mentorId);
-//   if (maybeMentor !== null && maybeMentor.userType === 'TEACHER') {
-//     return update;
-//   } else {
-//     throw new Error('Not a teacher!!!')
-//   }
-// })
-
-User.beforeUpdate(async function(update) {
-  // can probably do something with findTeachersAndMentees
-  // in the array, if the object with the update.id is found... has a mentee lol
-
+User.beforeUpdate(async update => {
   // array of mentor objects with a mentees array inside
   const hasMentees = await User.findTeachersAndMentees();
 
-  // if user is a teacher that has at least one mentee!!!
+  // if user is a TEACHER!!!
   if (hasMentees.some(teacher => teacher.name === update.name && teacher.mentees.length > 0)) {
     throw new Error(`${update.name} has a mentee! They cannot become a student yet`)
   } else {
-    // for students, OR teachers with no mentees
-    const maybeMentor = await User.findByPk(update.mentorId);
-    const user = await User.findByPk(update.id);
+    // if user is a STUDENT
+    const maybeMentor = await User.findByPk(update.mentorId); // the mentor user via the given id
+    const user = await User.findByPk(update.id);              // the user given the id (should be a student)
 
-    if (user.mentorId !== null){
+    if (user.mentorId !== null ){
+      // if the student from database has a mentor
       throw new Error(`${update.name} has a mentor! They cannot become a teacher yet`)
     } else if (maybeMentor !== null && maybeMentor.userType === 'STUDENT'){
-      throw new Error('Not a teacher!!!');
+      // if the mentor via the given id is in fact, not a teacher!!
+      throw new Error(`${maybeMentor.name} is not a teacher! Cannot make them a mentor.`);
     }
+    // if passes all the correct conditions, the user may pass
     return update;
   }
 })

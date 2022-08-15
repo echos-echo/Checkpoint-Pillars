@@ -17,6 +17,8 @@ const {
  */
 
 // Add your routes here:
+
+// gets all students not assigned to a mentor
 router.get('/unassigned', async (req, res, next) => {
   try {
     res.send(await User.findUnassignedStudents());
@@ -25,6 +27,7 @@ router.get('/unassigned', async (req, res, next) => {
   }
 })
 
+// gets all teachers (and their array of mentees)
 router.get('/teachers', async (req, res, next) => {
   try {
     res.send(await User.findTeachersAndMentees());
@@ -33,37 +36,42 @@ router.get('/teachers', async (req, res, next) => {
   }
 })
 
-router.put('/:id', async (req, res, next) => {
-  try {
-    const user = await User.findByPk(req.params.id);
-    if (user === null) {
-      res.sendStatus(404);
-    } else {
-      const updated = await user.update(req.body);
-      res.status(200).send(updated);
+// put/delete routes for /:id
+router.route('/:id')
+  // will update the user at the given id
+  .put(async (req, res, next) => {
+    try {
+      const user = await User.findByPk(req.params.id);
+      // if the user does not exist, sends 404. if they do, updates the row
+      user === null ? res.sendStatus(404) : res.status(200).send(await user.update(req.body));
+    } catch(err) {
+      next(err);
     }
-  } catch(err) {
-    next(err);
-  }
-})
-
-router.delete('/:id', async (req, res, next) => {
-  try {
-    let user;
-    req.params.id.search(/[^0-9]/) === -1 ? user = await User.findByPk(req.params.id) : res.sendStatus(400);
-    switch (user) {
-      case null:
-        res.sendStatus(404);
-        break;
-      default:
-        await User.destroy({ where: { id: req.params.id }});
-        res.sendStatus(204);
+  })
+  // will delete the user of the given id
+  .delete(async (req, res, next) => {
+    try {
+      // checks if the given id is a number; will return -1 if it is not and send status 400
+      if (req.params.id.search(/[0-9]/) >= 0) {
+        switch (await User.findByPk(req.params.id)) {
+          // if the id does not exist
+          case null:
+            res.sendStatus(404);
+            break;
+          // if the id does exist, it gets DESTROYED
+          default:
+            await User.destroy({ where: { id: req.params.id }});
+            res.sendStatus(204);
+        }
+      } else {
+        res.sendStatus(400);
+      }
+    } catch(err) {
+      next(err);
     }
-  } catch(err) {
-    next(err);
-  }
-})
+  })
 
+// will create a new user if one by the given name does not already exist
 router.post('/', async (req, res, next) => {
   try {
     await User.findOne({ where: { name: req.body.name }}) === null ?
