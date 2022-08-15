@@ -39,7 +39,7 @@ const renderTeachers = () => {
       return `
       <li>
         ${teacher.name} (${teacher.mentees && teacher.mentees.length} mentees)
-        <button data-action='delete-teacher' data-id='${teacher.id}'>x</button>
+        <button class='delete' data-action='delete-teacher' data-id='${teacher.id}'>x</button>
         <button data-action='make-teacher-a-student' data-id='${
           teacher.id
         }'>Make Student</button>
@@ -60,7 +60,7 @@ const renderMentees = (mentees) => {
       return `
       <li>
         ${mentee.name}
-        <button data-mentor-id='${mentee.mentorId}' data-action='delete-mentee' data-id='${mentee.id}'>x</button>
+        <button data-mentor-id='${mentee.mentorId}' class='delete' data-action='delete-mentee' data-id='${mentee.id}'>x</button>
         <button data-mentor-id='${mentee.mentorId}' data-action='unassign-mentee' data-id='${mentee.id}'>Unassign Mentee</button>
         <button data-mentor-id='${mentee.mentorId}' data-action='make-mentee-a-teacher' data-id='${mentee.id}'>Make Teacher</button>
       </li>
@@ -86,7 +86,7 @@ const renderUnassigned = () => {
             )
             .join('')}
         </select>
-        <button data-action='delete-unassigned' data-id='${
+        <button data-action='delete-unassigned' class='delete' data-id='${
           student.id
         }'>x</button>
         <button data-action='make-unassigned-a-teacher' data-id='${

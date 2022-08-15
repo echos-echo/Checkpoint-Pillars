@@ -1,6 +1,22 @@
+
 body {
+  color: #4A5043;
+  margin: 0;
   font-family: verdana;
+  animation: fadein 2s;
 }
+
+/* onload animation for whole body */
+@keyframes fadein {
+  from {
+    opacity: 0
+  }
+  to {
+    opacity: 1
+  }
+}
+
+/* css for all content (create-a-student, teachers, unassigned students) */
 #content {
   display: flex;
 }
@@ -8,11 +24,44 @@ body {
 #content > * {
   flex: 1;
 }
+
+h1, h2 {
+  border-bottom: solid 7px #B9D8C2;
+  width: 100%;
+  padding: 8px 0px;
+  background-color: blanchedalmond;
+  text-align: center;
+}
+
 button,
 select,
 input {
+  margin: 8px;
   font-size: 1rem;
   padding: 0.25rem;
+  border-radius: 5px;
+  border: none;
+}
+
+button {
+  width: 50%;
+}
+
+button:hover {
+  transition: ease-in-out 0.2s;
+  transform: scale(1.15);
+}
+
+input {
+  text-align: center;
+  width: 75%;
+}
+
+/* delete buttons! */
+.delete {
+  color: white;
+  width: 30px;
+  background-color: darkred;
 }
 
 ul {
@@ -22,12 +71,19 @@ ul {
 li {
   display: flex;
   flex-direction: column;
-  border: solid 1px black;
+  border: solid 4px black;
+  border-radius: 15px;
   margin: 1rem;
   padding: 1rem;
+  align-items: center;
+}
+
+li ul {
+  width: 90%;
 }
 
 li li {
+  background-color: #9AC2C9;
   border-width: 0;
 }
 
@@ -35,9 +91,21 @@ li > * {
   margin: 1rem 0;
 }
 
-#student-form {
+#create {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+#student-form {
+  background-color: #FFCB47;
+  display: flex;
+  flex-direction: column;
+  border-radius: 15px;
+  padding: 5px;
+  align-items: center;
+  width: 45vw;
 }
 
 #student-form > * {
@@ -46,4 +114,23 @@ li > * {
 
 #error {
   color: red;
+}
+
+#teachers > li {
+  background-color: #B9D8C2;
+}
+
+#unassigned > li {
+  background-color: #CC8B8C;
+}
+
+
+@media screen and (max-width: 768px){
+  #content {
+    flex-direction: column;
+  }
+  li {
+    margin: 1.1rem;
+    padding: 1.1rem;
+  }
 }
