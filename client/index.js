@@ -4,7 +4,8 @@ axios.defaults.timeout = 2000;
 const teacherList = document.querySelector('#teachers');
 const unassignedList = document.querySelector('#unassigned');
 const studentNameField = document.querySelector('#name');
-const body = document.querySelector('body');
+const body = document.querySelector('body');  // not gonna lie, probably not great practice...
+                                              // but i needed the whole body to include #create
 const error = document.querySelector('#error');
 
 const data = {
